@@ -19,8 +19,9 @@ class HomeComponent extends React.PureComponent {
             client_ip: null,
             remainingDay: '',
             orderData:[],
-            formData:{},
-            showForm:false
+            formData:undefined,
+            showForm:false,
+            getData:true,
         }
     }
 
@@ -28,21 +29,34 @@ class HomeComponent extends React.PureComponent {
     componentWillReceiveProps(nextProps) {
 
         console.log(nextProps)
-        if(nextProps.HomeRes && nextProps.HomeRes.data && nextProps.HomeRes.data.doHomeRes){
+        if(nextProps.HomeRes && nextProps.HomeRes.data && nextProps.HomeRes.data.doHomeRes ){
             this.setState({
-                orderData:nextProps.HomeRes.data.doHomeRes,
+                orderData:[...nextProps.HomeRes.data.doHomeRes],
+                formData:undefined,
                 isLoader:false,
+                getData:false,
             },()=>console.log(this.state.orderData))
         }
     }
 
     // form submit 
     handleSubmit(data) {
+        console.log(data)
         let orderData = this.state.orderData;
-        orderData.push(data);
+        if(this.state.formData){
+            if(data.id === ""){
+                orderData[0] = data;
+            }else{
+                orderData[data.id] = data;
+            }
+            
+        }else{
+            orderData.push(data);
+        }
+        
         this.setState({
             isLoader: true,
-            
+            getData:true,
             showForm:false,
         })
         
@@ -53,9 +67,22 @@ class HomeComponent extends React.PureComponent {
 
     //delete data
     delete = (i) => {
+        console.log(i)
         let orderData = this.state.orderData;
-        let order = orderData.splice(1,i)
-        this.props.handleFormSubmit(order);
+        orderData.splice(i,1)
+        console.log(orderData)
+        this.setState({
+            getData:true,
+        })
+        this.props.handleFormSubmit(orderData);
+    }
+
+    // edit data
+    edit = (i) => {
+        this.setState({
+            formData:{...this.state.orderData[i],id:i},
+            showForm:true
+        })
     }
 
     addNew = () => {
@@ -74,7 +101,6 @@ class HomeComponent extends React.PureComponent {
                         <table className="table">
                             <thead>
                                 <tr>
-                                    <th>#</th>
                                     <th>Name</th>
                                     <th>Price</th>
                                     <th>Note</th>
@@ -85,11 +111,11 @@ class HomeComponent extends React.PureComponent {
                                 {
                                     this.state.orderData.map((item,index) => 
                                     <tr key={index}>
-                                        <td>{index +1}</td>
                                         <td>{item.name}</td>
                                         <td>$ {item.price}.00</td>
                                         <td>{item.note}</td>
-                                        <td><button className="btn btn-danger" onClick={() => this.delete(index)}>Delete</button></td>
+                                        <td><button className="btn btn-danger" onClick={() => this.delete(index)}>Delete</button>
+                                        <button className="btn btn-primary" onClick={() => this.edit(index)}>Edit</button></td>
                                     </tr>
                                     )
                                 }

@@ -2,6 +2,12 @@
 
 This project was generated with [React] version ^16.13.1.
 
+
+## Getting started
+
+Clone this repo
+`npm install` to install all req'd dependencies
+
 ## Development server
 
 Run `npm start` for a dev server. Navigate to `http://localhost:4000/`. The app will automatically reload if you change any of the source files.

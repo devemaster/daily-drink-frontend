@@ -1,6 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Field, reduxForm } from 'redux-form';
 import { doHomeRes } from '../../../action/homeAction';
 import { connect } from 'react-redux';
 import { createStructuredSelector } from 'reselect';
@@ -10,27 +9,6 @@ const fields = ['email', 'price', 'note'];
 
 
 
-// form field dynamic created
-const renderField = ({ input, label, type, meta: { touched, error } }) => (
-    <div>
-        <div>
-            <input className="form-control" {...input} placeholder={label} type={type}  />
-            {touched && error && <span>{error}</span>}
-        </div>
-    </div>
-)
-
-// validation
-const validate = values => {
-    const errors = {}
-    if (!values.name) {
-        errors.email = 'Please enter name'
-    }
-    if (!values.price) {
-        errors.price = 'Please enter price'
-    }
-    return errors
-}
 
 
 class HomeForm extends React.PureComponent {
@@ -39,18 +17,20 @@ class HomeForm extends React.PureComponent {
         super(props);
         console.log(props)
         this.state ={
-            name:'',
-            email:'',
-            note:'',
+            name:props.formData && props.formData.name,
+            price:props.formData && props.formData.price ,
+            note:props.formData && props.formData.note,
+            id:props.formData && props.formData.id,
         }
     }
 
     componentWillReceiveProps(nextProps){
         console.log(nextProps)
         this.setState({
-            name:nextProps.formData.name,
-            email:nextProps.formData.email,
-            note:nextProps.formData.note,
+            name:nextProps.formData && nextProps.formData.name,
+            price:nextProps.formData && nextProps.formData.price,
+            note:nextProps.formData && nextProps.formData.note,
+            id:nextProps.formData && nextProps.formData.id,
         })
     }
 
@@ -58,43 +38,57 @@ class HomeForm extends React.PureComponent {
     componentWillUnmount() {
         this.props.reset();
     }
+    //submit edit form
+    handleSubmit = () => {
+        let data = {
+            name:this.state.name,
+            price:this.state.price,
+            note:this.state.note,
+            id:this.state.id
+        }
+        this.props.handleFormSubmit(data)
+    }
+
     render() {
-        const { handleSubmit, handleFormSubmit, pristine, submitting, formData } = this.props
         return (
-            <form onSubmit={handleSubmit(handleFormSubmit)} className="form-content">
+            <form onSubmit={this.handleSubmit} className="form-content">
                 <h3>Enter order detail here</h3>
+                <input type="hidden" name="id" value={this.state.id} />
                 <div className="small-12 columns error_message form_field_wrapper email_feild_wrapper">
-                    <Field
+                    <input
                         name="name"
-                        component={renderField}
-                        label="Enter Name"
+                        placeholder="Enter Name"
+                        className="form-control"
                         autoComplete="off"
                         type="text"
                         value={this.state.name}
+                        onChange={(e) => this.setState({name:e.target.value})}
                     />
                 </div>
                 <div className="small-12 columns error_message form_field_wrapper password_feild_wrapper">
-                    <Field
+                    <input
                         name="price"
-                        component={renderField}
-                        label="Enter price"
+                        className="form-control"
+                        placeholder="Enter price"
                         autoComplete="off"
                         type="number"
-                        value={formData.price}
+                        value={this.state.price}
+                        onChange={(e) => this.setState({price:e.target.value})}
                     />
                 </div>
                 <div className="small-12 columns error_message form_field_wrapper password_feild_wrapper">
-                    <Field
+                    <input
                         name="note"
-                        component={renderField}
-                        label="Enter note"
+                        className="form-control"
+                        placeholder="Enter note"
                         autoComplete="off"
                         type="note"
-                        value={formData.note}
+                        value={this.state.note}
+                        onChange={(e) => this.setState({note:e.target.value})}
                     />
                 </div>
                 <div>
-                    <button type="submit" className="btn btn-primary login_button" disabled={pristine || submitting}>Submit</button>
+                    <button type="submit" className="btn btn-primary login_button" disabled={this.props.submitting}>Submit</button>
                 </div>
             </form>
         )
@@ -124,8 +118,6 @@ function mapDispatchToProps(dispatch,ownProps) {
 
 const ReduxHomeForm = reduxForm({
     form: 'ReduxHomeForm',
-    fields,
-    validate,
     destroyOnUnmount: false,
     enableReinitialize: true,
     keepDirtyOnReinitialize: true,
