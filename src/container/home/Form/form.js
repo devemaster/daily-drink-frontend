@@ -1,11 +1,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { reduxForm } from 'redux-form';
 import { doHomeRes } from '../../../action/homeAction';
 import { connect } from 'react-redux';
 import { createStructuredSelector } from 'reselect';
 import './form.scss';
 
-const fields = ['email', 'price', 'note'];
 
 
 
